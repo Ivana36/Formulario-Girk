@@ -1,0 +1,782 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+</script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Formulario GIRK2 - Detección Inteligente</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 2em;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 2em;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5em;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1em;
+    }
+    select, textarea, input {
+      width: 100%;
+      padding: 0.6em;
+      margin-top: 0.4em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+    .button-blue {
+      margin-top: 1.5em;
+      background-color: #1746d4;
+      color: white;
+      padding: 0.75em;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+    .section-detectado {
+      margin-top: 2em;
+      background-color: #f9f9f9;
+      padding: 1em;
+      border-radius: 6px;
+    }
+    .section-detectado label {
+      margin-top: 0.8em;
+    }
+    .button-green {
+      margin-top: 1.5em;
+      background-color: #198754;
+      color: white;
+      padding: 0.75em;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+    .note {
+      margin-top: 1em;
+      text-align: center;
+      font-size: 0.9em;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Formulario GIRK2 - Detección Inteligente</h2>
+
+    <label for="vendedora">Selecciona tu nombre:</label>
+    <select id="vendedora" required>
+      <option value="">Selecciona una vendedora</option>
+      <option value="Mildred">Mildred</option>
+      <option value="Isabel">Isabel</option>
+      <option value="Yohana">Yohana</option>
+      <option value="Mabel">Mabel</option>
+    </select>
+
+    <label for="mensaje">Pega el mensaje del cliente:</label>
+    <textarea id="mensaje" placeholder="Ejemplo: Radiador de agua para Civic 2012"></textarea>
+
+    <label for="observaciones">Observaciones:</label>
+    <textarea id="observaciones" placeholder="Ejemplo: Motor 2.4, Serie EX"></textarea>
+
+    <button class="button-blue" onclick="limpiarMensaje()">Detectar Datos</button>
+
+    <div class="section-detectado">
+      <h3>Datos detectados:</h3>
+      <label>Producto:</label>
+      <input type="text" id="producto" placeholder="Producto">
+
+      <label>Marca:</label>
+      <input type="text" id="marca" placeholder="Marca">
+
+      <label>Modelo:</label>
+      <input type="text" id="modelo" placeholder="Modelo">
+
+      <label>Año:</label>
+      <input type="text" id="anio" placeholder="Año">
+    </div>
+
+    <button class="button-green" onclick="guardarMensaje()">Guardar</button>
+    <div class="note">Todos los datos se enviarán al formulario.</div>
+  </div>
+
+<script>
+const marcasModelos = {
+  "Toyota": ["Corolla", "Camry", "RAV4", "Hilux", "Yaris", "Fortuner", "Land Cruiser", "Prado", "Tacoma", "4Runner", "Sienna", "Highlander", "Avalon", "Tundra", "Sequoia", "Aygo", "C-HR", "Supra", "Vios", "Etios", "Rush", "Innova", "Avanza", "Prius", "Mirai", "Celica", "Tercel", "Starlet", "Agya", "22R", "T100", "Echo", "Sion", "Zion XD"],
+  "Honda": ["Civic", "Accord", "CR-V", "Pilot", "Fit", "HR-V", "Odyssey", "Ridgeline", "City", "Jazz", "Insight", "Passport", "Vezel", "BR-V", "Mobilio", "Amaze", "WR-V", "Clarity", "Legend", "NSX", "S2000", "Stream", "Acura", "Prelude", "Element", "Integra"],
+  "Ford": ["F-150", "Focus", "Mustang", "Explorer", "Escape", "Ranger", "Edge", "Expedition", "Bronco", "Fusion", "Fiesta", "F-250", "F-350", "Transit", "EcoSport", "Kuga", "Mondeo", "Falcon", "Taurus", "Maverick", "Everest", "Territory", "Courier", "Aerostar", "Aspire", "Escort", "Lariat", "King Ranch", "Triton"],
+  "Chevrolet": ["Silverado", "Cruze", "Malibu", "Equinox", "Blazer", "Trailblazer", "Camaro", "Colorado", "Spark", "Sonic", "Tahoe", "Suburban", "Captiva", "Aveo", "Sail", "Onix", "Tracker", "Cobalt", "Volt", "Bolt", "Impala", "Express", "Niva", "Corsa", "Trax", "Beat", "Monza", "Chevy", "Cavalier", "CMV", "Orlando"],
+  "Nissan": ["Sentra", "Altima", "Rogue", "Pathfinder", "Frontier", "X-Trail", "Versa", "Murano", "Patrol", "Navara", "Kicks", "Qashqai", "Maxima", "Tiida", "Note", "Juke", "Leaf", "Micra", "Sunny", "Almera", "Terrano", "Armada", "Skyline", "Hardbody", "Titan", "Versa Note", "Xterra", "Urvan", "Cub", "AD Wagon", "Primera", "Quest", "NV350"],
+  "Hyundai": ["Tucson", "Santa Fe", "Elantra", "Sonata", "Accent", "Kona", "Palisade", "Venue", "i10", "i20", "Creta", "H-100", "Grand i10", "i30", "Veloster", "Ioniq", "Nexo", "Starex", "Getz", "Matrix", "Azera", "Genesis", "Porter", "H100", "Staria", "H-1", "Tiburon", "Eon", "Sonata Fe"],
+  "Kia": ["Sportage", "Sorento", "Rio", "Forte", "Seltos", "Optima", "Soul", "Telluride", "Picanto", "Cerato", "Carnival", "Niro", "Stinger", "Ceed", "XCeed", "ProCeed", "Morning", "Cadenza", "K5", "K900", "Ray", "K2700", "K3000", "Bongo", "Grace", "Sephia", "Carens", "Magentis"],
+  "Volkswagen": ["Golf", "Jetta", "Passat", "Tiguan", "Polo", "Virtus", "T-Cross", "Amarok", "Beetle", "Atlas", "Gol", "Voyage", "Saveiro", "Fox", "Up", "Nivus", "Taos", "Bora", "Vento", "Scirocco", "Caddy", "Transporter", "Cordoba"],
+  "Mazda": ["Mazda3", "CX-5", "CX-30", "Mazda6", "CX-9", "MX-5", "BT-50", "CX-3", "Demio", "Mazda2", "CX-7", "RX-8", "Tribute", "Premacy", "Atenza", "Axela", "B2600", "B2500", "B2400", "B2200", "B2300", "Protege", "323", "Speed", "CX-50", "CX-90", "PR-5"],
+  "Jeep": ["Wrangler", "Grand Cherokee", "Cherokee", "Compass", "Renegade", "Gladiator", "Patriot", "Liberty", "Commander", "Wagoneer"],
+  "Dodge": ["Ram", "Charger", "Challenger", "Durango", "Journey", "Caravan", "Neon", "Dart", "Viper", "Nitro", "Caliber"],
+  "Subaru": ["Forester", "Outback", "Impreza", "Crosstrek", "Legacy", "WRX", "Ascent", "BRZ", "XV", "Levorg", "Justy"],
+  "Mitsubishi": ["Lancer", "Outlander", "Montero", "Pajero", "ASX", "Eclipse Cross", "L200", "Triton", "Mirage", "Galant", "Space Star", "Attrage", "Endeavor", "L300", "Rider", "Mighty", "Nativa"],
+  "BMW": ["3 Series", "5 Series", "X3", "X5", "1 Series", "X1", "7 Series", "4 Series", "X7", "2 Series", "X4", "X6", "8 Series", "Z4", "M3", "M5", "i3", "i8", "116i", "118i", "325i"],
+  "Mercedes-Benz": ["C-Class", "E-Class", "GLC", "GLE", "A-Class", "S-Class", "GLA", "GLB", "Sprinter", "B-Class", "CLA", "CLS", "G-Class", "GLS", "AMG GT", "Vito", "Metris", "C200", "SLK 350", "ML 320"],
+  "Audi": ["A3", "A4", "Q5", "Q7", "Q3", "A6", "Q8", "A1", "A5", "A7", "Q2", "TT", "R8", "e-tron", "A200", "TL"],
+  "Peugeot": ["206", "207", "208", "308", "3008", "2008", "508", "Partner", "Expert", "301", "408", "5008", "Rifter", "Boxer", "107"],
+  "Renault": ["Clio", "Captur", "Duster", "Logan", "Sandero", "Megane", "Kangoo", "Koleos", "Twingo", "Zoe", "Fluence", "Symbol", "Talisman", "Kadjar"],
+  "Fiat": ["Panda", "500", "Uno", "Palio", "Strada", "Toro", "Argo", "Cronos", "Mobi", "Punto", "Linea", "Doblo", "Fiorino", "Tipo"],
+  "Suzuki": ["Swift", "Vitara", "Jimny", "Grand Vitara", "Alto", "S-Cross", "Ertiga", "Celerio", "Baleno", "Ignis", "SX4", "Kizashi", "Samurai", "Aerío", "XL7"],
+  "Chrysler": ["Pacifica", "300", "Voyager", "Town & Country", "Aspen", "Sebring", "Crossfire"],
+  "GMC": ["Sierra", "Yukon", "Terrain", "Acadia", "Canyon", "Savana", "Envoy", "Jimmy"],
+  "Ram": ["1500", "2500", "3500", "ProMaster", "ProMaster City"],
+  "Isuzu": ["D-Max", "Trooper", "Rodeo", "NPR", "FSR", "NQR", "FTR", "Hombre", "KB", "MUX"],
+  "Land Rover": ["Defender", "Range Rover", "Discovery", "Freelander", "Evoque", "Velar", "Sport"],
+  "Lexus": ["RX", "NX", "ES", "GX", "LX", "IS", "GS", "LS", "UX", "LC", "RC", "IS 250"],
+  "Volvo": ["XC60", "XC90", "S60", "V40", "XC40", "S90", "V60", "V90", "C30"],
+  "Tesla": ["Model 3", "Model Y", "Model S", "Model X", "Roadster"],
+  "Great Wall": ["Haval H6", "Haval H2", "Poer", "Wingle", "Haval H9", "Jolion", "M4"],
+  "Chery": ["Tiggo", "Arrizo", "QQ", "Fulwin", "Tiggo 2", "Tiggo 7", "Tiggo 8", "Orinoco"],
+  "Geely": ["Coolray", "Emgrand", "Boyue", "Azkarra", "Preface", "Icon", "Vision"],
+  "BYD": ["Yuan", "Tang", "Han", "Song", "Qin", "Dolphin", "Seal"],
+  "Mahindra": ["Scorpio", "XUV500", "Thar", "Bolero", "XUV300", "KUV100"],
+  "Changan": ["Hunter", "CS35", "CS15", "CS55", "Uni-T", "Uni-K", "Deepal", "Deepal S07", "CM5", "CM10", "CM20", "CS35Plus"],
+  "Scion": ["xB", "tC", "xA", "xD", "FR-S", "iQ", "iM", "iA", "tC RS", "xB RS", "xD"],
+  "Pontiac": ["Vibe", "G3"],
+  "Geo": ["Prizm", "Metro", "Tracker"],
+  "Seat": ["Cordoba"],
+  "Freightliner": ["Century Class", "Condor FLD120", "M2"],
+  "Hino": ["300", "FF"],
+  "Daewoo": ["Nubira"]
+};
+
+// Diccionario de correcciones para marcas y modelos
+const correccionesMarcasModelos = {
+  "toyta": "Toyota",
+  "tuyota": "Toyota",
+  "corola": "Corolla",
+  "corrolla": "Corolla",
+  "civik": "Civic",
+  "sivic": "Civic",
+  "honda civic": "Civic",
+  "jeep cheroki": "Cherokee",
+  "grand cheroki": "Grand Cherokee",
+  "landcruiser": "Land Cruiser",
+  "mazda 3": "Mazda3",
+  "nisan": "Nissan",
+  "nissasn": "Nissan",
+  "sentra": "Sentra",
+  "sentrra": "Sentra",
+  "centra": "Sentra",
+  "hiundai": "Hyundai",
+  "hundai": "Hyundai",
+  "hyunday": "Hyundai",
+  "hiunday": "Hyundai",
+  "huyndai": "Hyundai",
+  "tucson": "Tucson",
+  "tuzon": "Tucson",
+  "santafe": "Santa Fe",
+  "startex": "Starex",
+  "tiburón": "Tiburon",
+  "chevrolet": "Chevrolet",
+  "chebrolet": "Chevrolet",
+  "chevrolte": "Chevrolet",
+  "chevy": "Chevrolet",
+  "masda": "Mazda",
+  "mazada": "Mazda",
+  "cx5": "CX-5",
+  "cx7": "CX-7",
+  "cx3": "CX-3",
+  "protege5": "Protege",
+  "kia": "Kia",
+  "kias": "Kia",
+  "esportaje": "Sportage",
+  "esportage": "Sportage",
+  "sorrento": "Sorento",
+  "fird": "Ford",
+  "explore": "Explorer",
+  "ecosport": "EcoSport",
+  "mitsubichi": "Mitsubishi",
+  "mitsubisho": "Mitsubishi",
+  "misubishi": "Mitsubishi",
+  "nativa": "Montero",
+  "cachetona": "Montero",
+  "endevor": "Endeavor",
+  "eclipse croos": "Eclipse Cross",
+  "susuki": "Suzuki",
+  "suzuky": "Suzuki",
+  "cx4": "SX4",
+  "wolvaguen": "Volkswagen",
+  "volwagen": "Volkswagen",
+  "volkswaguen": "Volkswagen",
+  "vw": "Volkswagen",
+  "bmv": "BMW",
+  "mercedes benz": "Mercedes-Benz",
+  "mercedez": "Mercedes-Benz",
+  "suburu": "Subaru",
+  "subaro": "Subaru",
+  "crosstec": "Crosstrek",
+  "isusu": "Isuzu",
+  "isuzo": "Isuzu",
+  "dmax": "D-Max",
+  "changa": "Changan",
+  "rav": "RAV4",
+  "raw": "RAV4",
+  "highlader": "Highlander",
+  "odisey": "Odyssey",
+  "hrv": "HR-V",
+  "rogué": "Rogue",
+  "rouge": "Rogue",
+  "urban": "Urvan",
+  "patfhinder": "Pathfinder",
+  "verza": "Versa",
+  "sion": "Scion",
+  "traker": "Tracker",
+  "tahode": "Tahoe",
+  "blazzer": "Blazer",
+  "óptima": "Optima",
+  "mazda 6": "Mazda6",
+  "mazda 2": "Mazda2",
+  "bt50": "BT-50",
+  "b2300": "B2300",
+  "b2200": "B2200",
+  "116 i": "116i",
+  "116 I": "116i",
+  "duster": "Duster"
+};
+
+// Función para calcular similitud entre dos cadenas (distancia de Levenshtein simplificada)
+function getSimilarity(str1, str2) {
+  const len1 = str1.length;
+  const len2 = str2.length;
+  if (len1 === 0) return len2;
+  if (len2 === 0) return len1;
+
+  const matrix = Array(len2 + 1).fill(null).map(() => Array(len1 + 1).fill(null));
+
+  for (let i = 0; i <= len1; i++) matrix[0][i] = i;
+  for (let j = 0; j <= len2; j++) matrix[j][0] = j;
+
+  for (let j = 1; j <= len2; j++) {
+    for (let i = 1; i <= len1; i++) {
+      const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[j][i] = Math.min(
+        matrix[j][i - 1] + 1, // inserción
+        matrix[j - 1][i] + 1, // eliminación
+        matrix[j - 1][i - 1] + indicator // sustitución
+      );
+    }
+  }
+
+  return matrix[len2][len1];
+}
+
+// Función para calcular umbral dinámico
+function getDynamicThreshold(str) {
+  return str.length <= 5 ? 1 : Math.max(2, Math.ceil(str.length * 0.25)); // Más flexible para modelos largos
+}
+
+// Función para generar combinaciones de palabras
+function getWordCombinations(words) {
+  const combinations = [];
+  for (let i = 0; i < words.length; i++) {
+    for (let j = i + 1; j <= words.length && j <= i + 4; j++) { // Máximo 4 palabras
+      combinations.push(words.slice(i, j).join(" "));
+    }
+  }
+  return combinations;
+}
+
+// Función para normalizar texto
+function normalizeText(text) {
+  // Eliminar saludos y palabras irrelevantes
+  const irrelevantWords = ["buen", "dia", "tarde", "noches", "disculpe", "perdone", "seño", "señores", "tendrá", "tendran", "cotizar", "busco", "ando", "buscando", "necesito", "quisiera", "consulta", "por", "favor", "gracias", "tendrias", "tendra", "ustedes", "venden"];
+  let cleanText = text.toLowerCase();
+  irrelevantWords.forEach(word => {
+    cleanText = cleanText.replace(new RegExp(`\\b${word}\\b`, "g"), "");
+  });
+  return cleanText
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Función para aplicar correcciones de marcas y modelos
+function applyCorrections(text) {
+  let correctedText = text.toLowerCase();
+  for (const key in correccionesMarcasModelos) {
+    const keyNormalizado = normalizeText(key);
+    const replacement = normalizeText(correccionesMarcasModelos[key]);
+    if (correctedText.includes(keyNormalizado)) {
+      correctedText = correctedText.replace(keyNormalizado, replacement);
+      console.log(`Corrección aplicada: "${keyNormalizado}" -> "${replacement}"`);
+    }
+  }
+  return correctedText;
+}
+
+function limpiarMensaje() {
+  const mensaje = document.getElementById("mensaje").value;
+  const mensajeNormalizado = applyCorrections(mensaje);
+  let productoDetectado = "no detectado";
+  let marcaDetectada = "no detectado";
+  let modeloDetectado = "no detectado";
+  let anio = "no detectado";
+
+  // Correcciones de productos
+  const correccionesProductos = {
+    "radiador de agua": "radiador",
+    "radiadores": "radiador",
+    "rallador": "radiador",
+    "radiador intercooler": "radiador",
+    "radiador de refrigerante": "radiador",
+    "radiador pequeño de calefaccion": "radiador",
+    "ventiladores": "ventilador",
+    "ventiladora": "ventilador",
+    "ventilado": "ventilador",
+    "ventilador de motor": "ventilador",
+    "ventilador de ac": "ventilador",
+    "ventilador de radiador": "ventilador",
+    "condensadores": "condensador",
+    "condesador": "condensador",
+    "condensador de aire acondicionado": "condensador",
+    "condensador ac": "condensador",
+    "talcos": "stop",
+    "talco": "stop",
+    "stops": "stop",
+    "stopes": "stop",
+    "lampara trasera": "stop",
+    "luz trasera": "stop",
+    "silbin": "silvin",
+    "cilvines": "silvin",
+    "cilvin": "silvin",
+    "silvines": "silvin",
+    "silvins": "silvin",
+    "sillvin": "silvin",
+    "silbines": "silvin",
+    "sylvin": "silvin",
+    "amortiguador de baul": "amortiguador trasero",
+    "amortiguadores de baul": "amortiguador trasero",
+    "amortiguador para baul": "amortiguador trasero",
+    "amortiguador para atras": "amortiguador trasero",
+    "chok": "amortiguador",
+    "shok": "amortiguador",
+    "shock": "amortiguador",
+    "chock": "amortiguador",
+    "shoks": "amortiguador",
+    "muletas": "amortiguador",
+    "shok delantero": "amortiguadores delanteros",
+    "shock delantero": "amortiguadores delanteros",
+    "chok delantero": "amortiguadores delanteros",
+    "chock delantero": "amortiguadores delanteros",
+    "shoks delanteros": "amortiguadores delanteros",
+    "amortiguadores delantero": "amortiguadores delanteros",
+    "shok trasero": "amortiguador trasero",
+    "shock trasero": "amortiguador trasero",
+    "chok trasero": "amortiguador trasero",
+    "chock trasero": "amortiguador trasero",
+    "shoks traseros": "amortiguadores traseros",
+    "amortiguadores para atras": "amortiguadores traseros",
+    "amortiguadores traceros": "amortiguadores traseros",
+    "amortiguadores trastes": "amortiguadores traseros",
+    "amoriguadores": "amortiguadores",
+    "amortugüadores": "amortiguadores",
+    "amoriguadores traceros": "amortiguadores traseros",
+    "bumper": "parachoques",
+    "bomper": "parachoques",
+    "vonper": "parachoques",
+    "bonper": "parachoques",
+    "parachoque": "parachoques",
+    "espejo": "retrovisores",
+    "retrovisor": "retrovisores",
+    "rwtrobisores": "retrovisores",
+    "neblineras": "luces de neblina",
+    "neblinas": "luces de neblina",
+    "kit de neblineras": "luces de neblina",
+    "luz": "luces",
+    "lampara": "lamparas",
+    "cremallera": "cremalleras",
+    "bracket": "brackets",
+    "resorte": "resortes",
+    "muelle": "muelles",
+    "candela": "candelas",
+    "amortiguador delantero": "amortiguadores delanteros",
+    "amortiguador completo delantero": "amortiguadores delanteros",
+    "ules": "muelles",
+    "difusor de aire acondicionado": "difusor de aire acondicionado",
+    "persiana": "persiana",
+    "capo": "capo",
+    "lodera": "lodera",
+    "guardafangos": "guardafangos",
+    "faros": "faros",
+    "compresor": "compresor",
+    "evaporador": "evaporador",
+    "manecilla": "manecillas",
+    "pidevias": "pidevias",
+    "flasher": "flasher",
+    "guardapolvos": "guardapolvos",
+    "kit de tiempo": "kit de tiempo",
+    "sensor": "sensor",
+    "blower": "blower",
+    "valvula": "valvula",
+    "disco de freno": "disco de freno",
+    "espiral": "espiral",
+    "emblema": "emblema",
+    "chapa": "chapa",
+    "tolva": "tolva",
+    "filtro": "filtro",
+    "manguera": "manguera",
+    "boster": "boster",
+    "cargador": "cargador",
+    "punta de flecha": "punta de flecha",
+    "retenedor": "retenedor",
+    "caja cvt": "caja cvt",
+    "modulo de abs": "modulo de abs",
+    "compuerta": "compuerta",
+    "tapones de bomper": "tapones de bomper",
+    "bufa": "bufa",
+    "empacadura": "empacadura"
+  };
+
+  // Lista de productos
+  const productos = [
+    "radiador", "ventilador", "condensador", "silvin", "stop", "amortiguadores delanteros", "amortiguadores traseros", 
+    "amortiguador izquierdo", "amortiguador derecho", "amortiguador", "parachoques", "parrilla", "retrovisores", 
+    "luces", "lamparas", "cremalleras", "brackets", "lodera", "resortes", "muelles", "candelas", "luces de neblina", 
+    "difusor de aire acondicionado", "persiana", "capo", "guardafangos", "faros", "compresor", "evaporador", 
+    "manecillas", "pidevias", "flasher", "guardapolvos", "kit de tiempo", "sensor", "blower", "valvula", 
+    "disco de freno", "espiral", "emblema", "chapa", "tolva", "filtro", "manguera", "boster", "cargador", 
+    "punta de flecha", "retenedor", "caja cvt", "modulo de abs", "compuerta", "tapones de bomper", "bufa", 
+    "empacadura"
+  ];
+
+  // Lista de palabras que indican amortiguadores
+  const amortiguadorSynonyms = [
+    "chok", "shok", "shock", "chock", "shoks", "amortiguador", "amortiguadores", 
+    "amortiguadores delanteros", "amortiguadores traseros", "muletas"
+  ];
+
+  // Lista de productos que pueden tener "derecho" o "izquierdo"
+  const productosConLado = ["silvin", "stop", "retrovisores", "lodera", "guardafangos", "faros", "luces de neblina"];
+
+  // Detección de productos
+  for (const key in correccionesProductos) {
+    if (mensajeNormalizado.includes(normalizeText(key))) {
+      productoDetectado = correccionesProductos[key];
+      console.log(`Producto detectado (corrección): "${key}" -> "${productoDetectado}"`);
+      break;
+    }
+  }
+
+  if (productoDetectado === "no detectado") {
+    for (const prod of productos) {
+      if (mensajeNormalizado.includes(normalizeText(prod))) {
+        productoDetectado = prod;
+        console.log(`Producto detectado (directo): "${prod}"`);
+        break;
+      }
+    }
+  }
+
+  // Manejo de especificaciones de amortiguadores
+  if (amortiguadorSynonyms.includes(productoDetectado) || productoDetectado === "amortiguador") {
+    if (mensajeNormalizado.includes(normalizeText("derecho"))) {
+      productoDetectado = "amortiguador derecho";
+    } else if (mensajeNormalizado.includes(normalizeText("izquierdo"))) {
+      productoDetectado = "amortiguador izquierdo";
+    } else if (mensajeNormalizado.includes(normalizeText("delantero")) && productoDetectado === "amortiguador") {
+      productoDetectado = "amortiguadores delanteros";
+    } else if (mensajeNormalizado.includes(normalizeText("trasero")) && productoDetectado === "amortiguador") {
+      productoDetectado = "amortiguador trasero";
+    } else if (mensajeNormalizado.includes(normalizeText("baul")) || mensajeNormalizado.includes(normalizeText("compuerta"))) {
+      productoDetectado = "amortiguador trasero";
+    }
+  }
+
+  // Manejo de productos con lado
+  if (productosConLado.includes(productoDetectado)) {
+    if (mensajeNormalizado.includes(normalizeText("derecho")) || mensajeNormalizado.includes(normalizeText("copiloto"))) {
+      productoDetectado = productoDetectado + " derecho";
+      console.log(`Producto con lado: "${productoDetectado}"`);
+    } else if (mensajeNormalizado.includes(normalizeText("izquierdo")) || mensajeNormalizado.includes(normalizeText("chofer"))) {
+      productoDetectado = productoDetectado + " izquierdo";
+      console.log(`Producto con lado: "${productoDetectado}"`);
+    }
+  }
+
+  // Manejo de parachoques
+  if (productoDetectado === "parachoques") {
+    if (mensajeNormalizado.includes(normalizeText("delantero"))) {
+      productoDetectado = "parachoques delantero";
+    } else if (mensajeNormalizado.includes(normalizeText("trasero"))) {
+      productoDetectado = "parachoques trasero";
+    }
+  }
+
+  // Detección de modelo y marca
+  const words = mensajeNormalizado.split(/\s+/);
+  const wordCombinations = getWordCombinations(words);
+
+  let bestMatchModelo = null;
+  let bestSimilarityModelo = Infinity;
+  for (const marca in marcasModelos) {
+    for (const modelo of marcasModelos[marca]) {
+      const modeloNormalizado = normalizeText(modelo);
+      const threshold = getDynamicThreshold(modeloNormalizado);
+      if (mensajeNormalizado.includes(modeloNormalizado)) {
+        bestMatchModelo = modelo;
+        marcaDetectada = marca;
+        console.log(`Modelo detectado (exacto): "${modelo}" para marca "${marca}"`);
+        break;
+      }
+      for (const combination of wordCombinations) {
+        const similarity = getSimilarity(normalizeText(combination), modeloNormalizado);
+        console.log(`Comparando "${combination}" con "${modeloNormalizado}": similitud=${similarity}, umbral=${threshold}`);
+        if (similarity <= threshold && similarity < bestSimilarityModelo) {
+          bestSimilarityModelo = similarity;
+          bestMatchModelo = modelo;
+          marcaDetectada = marca;
+        }
+      }
+    }
+    if (bestMatchModelo) {
+      modeloDetectado = bestMatchModelo;
+      break;
+    }
+  }
+
+  // Si no se detectó modelo, buscar marca explícitamente
+  if (marcaDetectada === "no detectado") {
+    let bestMarcaMatch = null;
+    let bestMarcaSimilarity = Infinity;
+    for (const marca in marcasModelos) {
+      const marcaNormalizada = normalizeText(marca);
+      const threshold = getDynamicThreshold(marcaNormalizada);
+      if (mensajeNormalizado.includes(marcaNormalizada)) {
+        bestMarcaMatch = marca;
+        console.log(`Marca detectada (exacta): "${marca}"`);
+        break;
+      }
+      for (const combination of wordCombinations) {
+        const similarity = getSimilarity(normalizeText(combination), marcaNormalizada);
+        console.log(`Comparando "${combination}" con "${marcaNormalizada}": similitud=${similarity}, umbral=${threshold}`);
+        if (similarity <= threshold && similarity < bestMarcaSimilarity) {
+          bestMarcaSimilarity = similarity;
+          bestMarcaMatch = marca;
+        }
+      }
+    }
+    if (bestMarcaMatch) {
+      marcaDetectada = bestMarcaMatch;
+    }
+  }
+
+  // Si se detectó marca pero no modelo, buscar modelo dentro de la marca
+  if (marcaDetectada !== "no detectado" && modeloDetectado === "no detectado") {
+    let bestMatch = null;
+    let bestSimilarity = Infinity;
+    for (const modelo of marcasModelos[marcaDetectada]) {
+      const modeloNormalizado = normalizeText(modelo);
+      const threshold = getDynamicThreshold(modeloNormalizado);
+      for (const combination of wordCombinations) {
+        const similarity = getSimilarity(normalizeText(combination), modeloNormalizado);
+        console.log(`Buscando modelo en "${marcaDetectada}": Comparando "${combination}" con "${modeloNormalizado}": similitud=${similarity}, umbral=${threshold}`);
+        if (similarity <= threshold && similarity < bestSimilarity) {
+          bestSimilarity = similarity;
+          bestMatch = modelo;
+        }
+      }
+    }
+    if (bestMatch) {
+      modeloDetectado = bestMatch;
+      console.log(`Modelo detectado en "${marcaDetectada}": "${modeloDetectado}"`);
+    }
+  }
+
+  // Detección de año
+  const anioMatch = mensaje.match(/(?:19|20)?\d{2}(?:-\d{2})?|\b(?:año|modelo|mod)\s*(19|20)?\d{2}\b/gi);
+  if (anioMatch) {
+    let selectedYear = null;
+    for (const match of anioMatch) {
+      let year = match.replace(/[^0-9]/g, "");
+      if (year.includes("-")) {
+        year = year.split("-")[0]; // Tomar el primer año en rangos
+      }
+      if (year.length === 2) {
+        year = parseInt(year) > 30 ? "19" + year : "20" + year;
+      }
+      if (year === "2108") year = "2018"; // Corrección específica
+      if (parseInt(year) >= 1900 && parseInt(year) <= 2025) {
+        selectedYear = year;
+        break;
+      }
+    }
+    if (selectedYear) {
+      anio = selectedYear;
+      console.log(`Año detectado: "${anio}"`);
+    }
+  }
+
+  // Actualizar campos en el formulario
+  document.getElementById("producto").value = productoDetectado;
+  document.getElementById("marca").value = marcaDetectada;
+  document.getElementById("modelo").value = modeloDetectado;
+  document.getElementById("anio").value = anio;
+
+  // Mostrar advertencia si algún campo no se detectó
+  if (marcaDetectada === "no detectado" || modeloDetectado === "no detectado") {
+    alert("Algunos datos (marca o modelo) no se detectaron. Por favor, revisa el mensaje e inténtalo de nuevo.");
+  }
+}
+
+function guardarMensaje() {
+  const producto = document.getElementById("producto").value;
+  const marca = document.getElementById("marca").value;
+  const modelo = document.getElementById("modelo").value;
+  const anio = document.getElementById("anio").value;
+  const vendedora = document.getElementById("vendedora").value;
+  const observaciones = document.getElementById("observaciones").value;
+
+  // Permitir guardar si el año es "no detectado", pero los demás campos están completos
+  if (producto === "no detectado" || marca === "no detectado" || modelo === "no detectado" || !vendedora) {
+    alert("Por favor revisa los campos. Algunos datos no se detectaron o falta seleccionar la vendedora.");
+    return;
+  }
+
+  if (anio === "no detectado") {
+    const confirm = window.confirm("El año no se detectó. ¿Deseas continuar guardando los datos?");
+    if (!confirm) return;
+  }
+
+  fetch("https://script.google.com/macros/s/AKfycbzzMVzM4sT3_7v99DZWq3yPc5jhyWdtlaNOBDKRmbO6OqEtRcEUl__AhD_yd_R7P4Q5MQ/exec", {
+    method: "POST",
+    body: JSON.stringify({
+      producto,
+      marca,
+      modelo,
+      anio,
+      vendedora,
+      observaciones
+    }),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
+      }
+      return response.text();
+    })
+    .then(data => {
+      console.log("Respuesta del servidor:", data);
+      document.getElementById("mensaje").value = "";
+      document.getElementById("vendedora").value = "";
+      document.getElementById("producto").value = "";
+      document.getElementById("marca").value = "";
+      document.getElementById("modelo").value = "";
+      document.getElementById("anio").value = "";
+      document.getElementById("observaciones").value = "";
+      alert("Datos guardados exitosamente ✅");
+    })
+    .catch(err => {
+      console.error("Error al enviar:", err);
+      alert("Hubo un error al guardar los datos: " + err.message);
+    });
+}
+</script>
+</body>
+</html>
